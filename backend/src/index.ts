@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import authRoutes from "./routes/auth";
-import classRoutes from "./routes/classes";
+import authRoutes from "./routes/auth.js";
+import classRoutes from "./routes/classes.js";
 
 dotenv.config();
 const app = express();

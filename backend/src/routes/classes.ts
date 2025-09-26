@@ -1,19 +1,36 @@
-import { Router } from "express";
-import Class from "../models/Class";
-import authMiddleware from "../middleware/auth";
+  import { Router } from "express";
+  import Class from "../models/Class.js";
+  import authMiddleware from "../middleware/auth.js";
 
-const router = Router();
+  const router = Router();
 
-// List all classes
-router.get("/", async (_req, res) => {
-  const classes = await Class.find();
-  res.json(classes);
-});
+  // Get all classes
+  router.get("/", async (_req, res) => {
+    try {
+      const classes = await Class.find();
+      res.json(classes);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch classes" });
+    }
+  });
 
-// Like a class (authenticated)
-router.post("/:id/like", authMiddleware, async (req, res) => {
-  // Save liked class to user, etc.
-  res.json({ success: true });
-});
+  // Get a single class by ID
+  router.get("/:id", async (req, res) => {
+    try {
+      const classItem = await Class.findOne({ id: Number(req.params.id) });
+      if (!classItem) return res.status(404).json({ error: "Class not found" });
+      res.json(classItem);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch class" });
+    }
+  });
 
-export default router;
+  // Like a class (authenticated)
+  router.post("/:id/like", authMiddleware, async (req, res) => {
+    // TODO: implement saving like for user
+    res.json({ success: true });
+  });
+
+  export default router;
