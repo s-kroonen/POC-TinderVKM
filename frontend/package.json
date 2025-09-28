@@ -16,15 +16,22 @@
     "@capacitor/core": "^7.4.3",
     "@capacitor/ios": "^7.4.3",
     "@tailwindcss/vite": "^4.1.13",
+    "@vueuse/gesture": "^2.0.0",
+    "@vueuse/integrations": "^13.9.0",
+    "@vueuse/motion": "^3.0.3",
     "axios": "^1.12.2",
+    "universal-cookie": "^8.0.1",
     "vue": "^3.5.18",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vue3-interactjs": "^1.0.4",
+    "interact.js": "1.2.8"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3",
     "@vitejs/plugin-vue": "^6.0.1",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
+    "sass-embedded": "^1.93.2",
     "tailwindcss": "^4.1.13",
     "vite": "^7.0.6",
     "vite-plugin-vue-devtools": "^8.0.0"

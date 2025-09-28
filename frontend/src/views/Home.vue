@@ -1,56 +1,52 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue"
-import axios from "axios"
+import { ref, onMounted } from "vue";
+import { getClasses, type Class } from "../services/classService";
+import Swipe from "../components/swipe.vue";
+import GameCardsStack from "../components/GameCardsStack.vue";
 
-interface Class {
-  _id: string;
-  name: string;
-  description: string;
-  categories: string[];
-}
+const classes = ref<Class[]>([]);
+const liked = ref<Class[]>([]);
 
-const classes = ref<Class[]>([])
-const liked = ref<Class[]>([])
+const visibleCards = ["Test", "Vue.js", "Webpack"]
 
 onMounted(async () => {
-  const res = await axios.get("https://yourdomain.com/api/classes")
-  classes.value = res.data
-})
+  classes.value = await getClasses();
+});
 
 function like(cls: Class) {
-  liked.value.push(cls)
-  classes.value = classes.value.filter(c => c._id !== cls._id)
+  liked.value.push(cls);
+  classes.value = classes.value.filter(c => c._id !== cls._id);
 }
+
 function skip(cls: Class) {
-  classes.value = classes.value.filter(c => c._id !== cls._id)
+  classes.value = classes.value.filter(c => c._id !== cls._id);
+}
+function handleCardAccepted() {
+  console.log("handleCardAccepted");
+}
+function handleCardRejected() {
+  console.log("handleCardRejected");
+}
+function handleCardSkipped() {
+  console.log("handleCardSkipped");
+}
+function removeCardFromDeck() {
+  visibleCards.shift();
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-100">
-    <!-- Phone view -->
+    <!-- Mobile swipe view -->
     <div class="md:hidden p-4">
       <h1 class="text-xl font-bold mb-4">Swipe Classes</h1>
-      <div v-if="classes.length" class="relative">
-        <div
-          v-for="cls in classes"
-          :key="cls._id"
-          class="absolute inset-0 bg-white rounded-xl shadow-lg p-6"
-        >
-          <h2 class="text-lg font-semibold">{{ cls.name }}</h2>
-          <p class="text-sm text-gray-600">{{ cls.description }}</p>
-          <div class="mt-4 flex justify-around">
-            <button @click="skip(cls)" class="px-4 py-2 bg-red-500 text-white rounded-lg">❌ Skip</button>
-            <button @click="like(cls)" class="px-4 py-2 bg-green-500 text-white rounded-lg">❤️ Like</button>
-          </div>
-        </div>
-      </div>
-      <p v-else class="text-center text-gray-500">No more classes available</p>
+      <!-- <Swipe :initialLiked="liked" :classes="classes" @like="like" @skip="skip" /> -->
+      <GameCardsStack :cards="visibleCards" @cardAccepted="handleCardAccepted" @cardRejected="handleCardRejected"
+        @cardSkipped="handleCardSkipped" @hideCard="removeCardFromDeck" />
     </div>
 
     <!-- Desktop view -->
     <div class="hidden md:grid grid-cols-3 gap-4 p-6">
-      <!-- Class list -->
       <div class="col-span-2">
         <h1 class="text-2xl font-bold mb-4">Available Classes</h1>
         <div class="grid grid-cols-2 gap-4">

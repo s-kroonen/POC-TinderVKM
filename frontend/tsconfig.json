@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",                // modern JS
+    "module": "ESNext",                // needed for import.meta
+    "moduleResolution": "Node",
+    "strict": true,                    // enable type safety
+    "allowJs": true,                   // allow .js files alongside .ts
+    "checkJs": false,                  // optional: set true if you want type-checking in JS files
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]                 // keep your alias
+    }
+  },
+  "include": ["src/**/*"],             // all source files
+  "exclude": ["node_modules", "dist"]
+}
