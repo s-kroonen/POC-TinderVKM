@@ -1,165 +1,175 @@
 <template>
-    <div v-if="isShowing" ref="interactElement" :class="{
-        isAnimating: isInteractAnimating,
-        isCurrent: isCurrent
-    }" class="card" :style="{ transform: transformString }">
+    <div v-if="isShowing" ref="interactElement" class="card"
+        :class="{ isAnimating: isInteractAnimating, isCurrent: isCurrent }"
+        :style="{ transform: transformString || undefined }">
         <h3 class="cardTitle">{{ card.name }}</h3>
     </div>
 </template>
+<script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount, PropType, watch } from "vue";
+import interact from "interactjs";
+import type { Class } from "@/services/classService";
 
-<script>
-import interact from "interact.js";
-import Class from "../services/classService";
 const ACCEPT_CARD = "cardAccepted";
 const REJECT_CARD = "cardRejected";
 const SKIP_CARD = "cardSkipped";
 
-export default {
-    static: {
-        interactMaxRotation: 15,
-        interactOutOfSightXCoordinate: 500,
-        interactOutOfSightYCoordinate: 600,
-        interactYThreshold: 150,
-        interactXThreshold: 100
-    },
+const props = defineProps<{
+    card: Class;
+    isCurrent: boolean;
+    
+}>();
 
-    props: {
-        card: {
-            type: Class[],
-            required: true
-        },
-        isCurrent: {
-            type: Boolean,
-            required: true
-        }
-    },
+const emit = defineEmits<{
+    (e: "hideCard", card: Class): void;
+    (e: "cardAccepted", card: Class): void;
+    (e: "cardRejected", card: Class): void;
+    (e: "cardSkipped", card: Class): void;
+}>();
 
-    data() {
-        return {
-            isShowing: true,
-            isInteractAnimating: true,
-            isInteractDragged: null,
-            interactPosition: {
-                x: 0,
-                y: 0,
-                rotation: 0
-            }
-        };
-    },
+// === Constants ===
+const interactMaxRotation = 15;
+const interactOutOfSightXCoordinate = 500;
+const interactOutOfSightYCoordinate = 600;
+const interactYThreshold = 150;
+const interactXThreshold = 100;
 
-    computed: {
-        transformString() {
-            if (!this.isInteractAnimating || this.isInteractDragged) {
-                const { x, y, rotation } = this.interactPosition;
-                return `translate3D(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
-            }
+// === Reactive State ===
+const isShowing = ref(true);
+const isInteractAnimating = ref(true);
+const isInteractDragged = ref(false);
+const interactPosition = ref({ x: 0, y: 0, rotation: 0 });
 
-            return null;
-        }
-    },
+const interactElement = ref<HTMLElement | null>(null);
 
-    mounted() {
-        if (!this.isCurrent) return;
-        const element = this.$refs.interactElement;
+// === Computed transform ===
+const transformString = computed(() => {
+    if (!isInteractAnimating.value || isInteractDragged.value) {
+        const { x, y, rotation } = interactPosition.value;
+        return `translate3D(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
+    }
+    return null;
+});
 
-        interact(element).draggable({
-            onstart: () => {
-                this.isInteractAnimating = false;
-            },
+// === Helpers ===
+function interactSetPosition(coordinates: { x?: number; y?: number; rotation?: number }) {
+    const { x = 0, y = 0, rotation = 0 } = coordinates;
+    interactPosition.value = { x, y, rotation };
+}
 
-            onmove: event => {
-                const {
-                    interactMaxRotation,
-                    interactXThreshold
-                } = this.$options.static;
-                const x = this.interactPosition.x + event.dx;
-                const y = this.interactPosition.y + event.dy;
+function interactUnsetElement() {
+    if (interactElement.value) {
+        interact(interactElement.value).unset();
+        isInteractDragged.value = true;
+    }
+}
 
-                let rotation = interactMaxRotation * (x / interactXThreshold);
+function resetCardPosition() {
+    interactSetPosition({ x: 0, y: 0, rotation: 0 });
+}
 
-                if (rotation > interactMaxRotation) rotation = interactMaxRotation;
-                else if (rotation < -interactMaxRotation)
-                    rotation = -interactMaxRotation;
+function hideCard() {
+    setTimeout(() => {
+        isShowing.value = false;
+        emit("hideCard", props.card);
+    }, 300);
+}
 
-                this.interactSetPosition({ x, y, rotation });
-            },
+function playCard(interaction: string) {
+    interactUnsetElement();
 
-            onend: () => {
-                const { x, y } = this.interactPosition;
-                const { interactXThreshold, interactYThreshold } = this.$options.static;
-                this.isInteractAnimating = true;
+    switch (interaction) {
+        case ACCEPT_CARD:
+            interactSetPosition({
+                x: interactOutOfSightXCoordinate,
+                rotation: interactMaxRotation,
+            });
+            emit("cardAccepted", props.card);
+            break;
+        case REJECT_CARD:
+            interactSetPosition({
+                x: -interactOutOfSightXCoordinate,
+                rotation: -interactMaxRotation,
+            });
+            emit("cardRejected", props.card);
+            break;
+        case SKIP_CARD:
+            interactSetPosition({
+                y: interactOutOfSightYCoordinate,
+            });
+            emit("cardSkipped", props.card);
+            break;
+    }
 
-                if (x > interactXThreshold) this.playCard(ACCEPT_CARD);
-                else if (x < -interactXThreshold) this.playCard(REJECT_CARD);
-                else if (y > interactYThreshold) this.playCard(SKIP_CARD);
-                else this.resetCardPosition();
-            }
-        });
-    },
+    hideCard();
+}
 
-    beforeUnmount() {
-        interact(this.$refs.interactElement).unset();
-    },
+// === Lifecycle & Watcher ===
 
-    methods: {
-        hideCard() {
-            setTimeout(() => {
-                this.isShowing = false;
-                this.$emit("hideCard", this.card);
-            }, 300);
-        },
+// This function will set up or tear down the interactjs instance
+function setupInteract(isDraggable: boolean) {
+    if (interactElement.value) {
+        if (isDraggable) {
+            interact(interactElement.value).draggable({
+                onstart: () => {
+                    isInteractAnimating.value = false;
+                },
+                onmove: (event) => {
+                    const x = interactPosition.value.x + event.dx;
+                    const y = interactPosition.value.y + event.dy;
 
-        playCard(interaction) {
-            const {
-                interactOutOfSightXCoordinate,
-                interactOutOfSightYCoordinate,
-                interactMaxRotation
-            } = this.$options.static;
+                    let rotation = interactMaxRotation * (x / interactXThreshold);
+                    if (rotation > interactMaxRotation) rotation = interactMaxRotation;
+                    else if (rotation < -interactMaxRotation) rotation = -interactMaxRotation;
 
-            this.interactUnsetElement();
+                    interactSetPosition({ x, y, rotation });
+                },
+                onend: () => {
+                    const { x, y } = interactPosition.value;
+                    isInteractAnimating.value = true;
 
-            switch (interaction) {
-                case ACCEPT_CARD:
-                    this.interactSetPosition({
-                        x: interactOutOfSightXCoordinate,
-                        rotation: interactMaxRotation
-                    });
-                    this.$emit(ACCEPT_CARD, this.card);
-                    break;
-                case REJECT_CARD:
-                    this.interactSetPosition({
-                        x: -interactOutOfSightXCoordinate,
-                        rotation: -interactMaxRotation
-                    });
-                    this.$emit(REJECT_CARD, this.card);
-                    break;
-                case SKIP_CARD:
-                    this.interactSetPosition({
-                        y: interactOutOfSightYCoordinate
-                    });
-                    this.$emit(SKIP_CARD, this.card);
-                    break;
-            }
-
-            this.hideCard();
-        },
-
-        interactSetPosition(coordinates) {
-            const { x = 0, y = 0, rotation = 0 } = coordinates;
-            this.interactPosition = { x, y, rotation };
-        },
-
-        interactUnsetElement() {
-            interact(this.$refs.interactElement).unset();
-            this.isInteractDragged = true;
-        },
-
-        resetCardPosition() {
-            this.interactSetPosition({ x: 0, y: 0, rotation: 0 });
+                    if (x > interactXThreshold) playCard(ACCEPT_CARD);
+                    else if (x < -interactXThreshold) playCard(REJECT_CARD);
+                    else if (y > interactYThreshold) playCard(SKIP_CARD);
+                    else resetCardPosition();
+                },
+            });
+        } else {
+            // If it's no longer the current card, unset its interact instance
+            interact(interactElement.value).unset();
         }
     }
-};
+}
+
+// NEW WATCHER: This is the key to the solution!
+watch(() => props.isCurrent, (isNowCurrent) => {
+    setupInteract(isNowCurrent);
+}, {
+    immediate: true // This will run the watcher once on component mount
+});
+
+onBeforeUnmount(() => {
+    if (interactElement.value) {
+        interact(interactElement.value).unset();
+    }
+});
+
+// The old onMounted is no longer needed for this logic
+/*
+onMounted(() => {
+  if (!props.isCurrent || !interactElement.value) return;
+  // ... All this logic has been moved into the watch effect
+});
+*/
+onMounted(() => {
+  if (props.isCurrent) {
+    setupInteract(true);
+  }
+});
 </script>
+
+
+
 
 <style lang="scss" scoped>
 @use "../styles/index.scss" as *;
