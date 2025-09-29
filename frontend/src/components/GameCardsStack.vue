@@ -13,22 +13,17 @@
   </div>
 </template>
 
-<script>
-import GameCard from "../components/GameCard.vue";
+<script setup lang="ts">
+import GameCard from "./GameCard.vue";
+import { type Class } from "../services/classService";
 
-export default {
-  components: {
-    GameCard
-  },
+defineProps<{
+  cards: Class[];
+}>();
 
-  props: {
-    cards: {
-      type: Array,
-      required: true
-    }
-  }
-};
+defineEmits(["cardAccepted", "cardRejected", "cardSkipped", "hideCard"]);
 </script>
+
 
 <style lang="scss" scoped>
 .cards {

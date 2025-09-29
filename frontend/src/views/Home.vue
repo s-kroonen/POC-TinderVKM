@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { getClasses, type Class } from "../services/classService";
-import Swipe from "../components/swipe.vue";
 import GameCardsStack from "../components/GameCardsStack.vue";
 
 const classes = ref<Class[]>([]);
 const liked = ref<Class[]>([]);
-
-const visibleCards = ["Test", "Vue.js", "Webpack"]
 
 onMounted(async () => {
   classes.value = await getClasses();
@@ -21,17 +18,20 @@ function like(cls: Class) {
 function skip(cls: Class) {
   classes.value = classes.value.filter(c => c._id !== cls._id);
 }
-function handleCardAccepted() {
+function handleCardAccepted(cls: Class) {
   console.log("handleCardAccepted");
+  console.log("Accepted:", cls.name);
 }
-function handleCardRejected() {
+function handleCardRejected(cls: Class) {
   console.log("handleCardRejected");
+  console.log("Rejected:", cls.name);
 }
-function handleCardSkipped() {
+function handleCardSkipped(cls: Class) {
   console.log("handleCardSkipped");
+  console.log("Skipped:", cls.name);
 }
 function removeCardFromDeck() {
-  visibleCards.shift();
+  classes.value.shift();
 }
 </script>
 
@@ -41,7 +41,7 @@ function removeCardFromDeck() {
     <div class="md:hidden p-4">
       <h1 class="text-xl font-bold mb-4">Swipe Classes</h1>
       <!-- <Swipe :initialLiked="liked" :classes="classes" @like="like" @skip="skip" /> -->
-      <GameCardsStack :cards="visibleCards" @cardAccepted="handleCardAccepted" @cardRejected="handleCardRejected"
+      <GameCardsStack :cards="classes" @cardAccepted="handleCardAccepted" @cardRejected="handleCardRejected"
         @cardSkipped="handleCardSkipped" @hideCard="removeCardFromDeck" />
     </div>
 

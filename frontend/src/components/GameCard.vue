@@ -3,12 +3,13 @@
         isAnimating: isInteractAnimating,
         isCurrent: isCurrent
     }" class="card" :style="{ transform: transformString }">
-        <h3 class="cardTitle">{{ card }}</h3>
+        <h3 class="cardTitle">{{ card.name }}</h3>
     </div>
 </template>
 
 <script>
 import interact from "interact.js";
+import Class from "../services/classService";
 const ACCEPT_CARD = "cardAccepted";
 const REJECT_CARD = "cardRejected";
 const SKIP_CARD = "cardSkipped";
@@ -24,7 +25,7 @@ export default {
 
     props: {
         card: {
-            type: String,
+            type: Class[],
             required: true
         },
         isCurrent: {
@@ -123,20 +124,20 @@ export default {
                         x: interactOutOfSightXCoordinate,
                         rotation: interactMaxRotation
                     });
-                    this.$emit(ACCEPT_CARD);
+                    this.$emit(ACCEPT_CARD, this.card);
                     break;
                 case REJECT_CARD:
                     this.interactSetPosition({
                         x: -interactOutOfSightXCoordinate,
                         rotation: -interactMaxRotation
                     });
-                    this.$emit(REJECT_CARD);
+                    this.$emit(REJECT_CARD, this.card);
                     break;
                 case SKIP_CARD:
                     this.interactSetPosition({
                         y: interactOutOfSightYCoordinate
                     });
-                    this.$emit(SKIP_CARD);
+                    this.$emit(SKIP_CARD, this.card);
                     break;
             }
 
