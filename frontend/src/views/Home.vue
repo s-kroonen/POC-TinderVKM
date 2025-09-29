@@ -1,30 +1,35 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useClassesStore } from "../stores/classes";
+import Cookies from "js-cookie";
+import type { Class } from "@/services/apiService";
 import GameCardsStack from "../components/GameCardsStack.vue";
 
 const store = useClassesStore();
 
 onMounted(() => {
-  store.fetchClasses();
+  store.fetchClasses().then(() => {
+    store.fetchPreferences();
+    store.loadFromCookies();
+  });
 });
 
-function handleCardAccepted(cls) {
+function handleCardAccepted(cls: Class) {
   store.like(cls);
   console.log("Card accepted:", cls.name);
 }
 
-function handleCardRejected(cls) {
+function handleCardRejected(cls: Class) {
   store.skip(cls);
   console.log("Card rejected:", cls.name);
 }
 
-function handleCardSkipped(cls) {
+function handleCardSkipped(cls: Class) {
   store.skip(cls);
   console.log("Card skipped:", cls.name);
 }
 
-function removeCardFromDeck(cls) {
+function removeCardFromDeck(cls: Class) {
   store.skip(cls);
   console.log("Card removed from deck:", cls.name);
 }
@@ -60,7 +65,7 @@ function removeCardFromDeck(cls) {
         <h2 class="text-xl font-bold mb-2">Liked Classes</h2>
         <ul class="space-y-2">
           <li v-for="cls in store.liked" :key="cls._id" class="bg-green-50 p-3 rounded border border-green-200">
-            <h3 class="font-medium">{{ cls.name }}</h3> 
+            <h3 class="font-medium">{{ cls.name }}</h3>
           </li>
         </ul>
       </div>

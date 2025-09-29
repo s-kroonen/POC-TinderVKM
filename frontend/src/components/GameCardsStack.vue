@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import GameCard from "./GameCard.vue";
-import { type Class } from "../services/classService";
+import { type Class } from "../services/apiService";
 import { watch } from "vue";
 
 defineProps<{

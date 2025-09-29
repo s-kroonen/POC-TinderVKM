@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 import { useDrag } from "@vueuse/gesture";
-import type { Class } from "../services/classService";
+import type { Class } from "../services/apiService";
 import { useMotion } from '@vueuse/motion';
 
 const props = defineProps<{
