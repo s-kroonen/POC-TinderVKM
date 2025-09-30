@@ -38,10 +38,19 @@ export async function mergePreferences(liked: string[], skipped: string[], token
   return res.data;
 }
 
-
 export async function getPreferences(token: string) {
   const res = await api.get(`/classes/me/preferences`, {
     headers: { Authorization: `Bearer ${token}` }
   });
+  return res.data;
+}
+
+export async function loginApi(email: string, password: string) {
+  const res = await api.post("/auth/login", { email, password });
+  return res.data;
+}
+
+export async function registerApi(email: string, password: string) {
+  const res = await api.post("/auth/register", { email, password });
   return res.data;
 }

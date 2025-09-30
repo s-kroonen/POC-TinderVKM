@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useClassesStore } from "../stores/classes";
-import Cookies from "js-cookie";
 import type { Class } from "@/services/apiService";
 import GameCardsStack from "../components/GameCardsStack.vue";
 
 const store = useClassesStore();
 
 onMounted(() => {
-  store.fetchClasses().then(() => {
-    store.fetchPreferences();
-    store.loadFromCookies();
-  });
+  store.initClasses(); // 👈 new single entry point
 });
+
 
 function handleCardAccepted(cls: Class) {
   store.like(cls);
