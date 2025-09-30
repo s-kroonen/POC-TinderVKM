@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useClassesStore } from "../stores/classes";
 import type { Class } from "@/services/apiService";
 import GameCardsStack from "../components/GameCardsStack.vue";
@@ -7,9 +7,12 @@ import GameCardsStack from "../components/GameCardsStack.vue";
 const store = useClassesStore();
 
 onMounted(() => {
-  store.initClasses(); // 👈 new single entry point
+  store.initClasses();
 });
 
+onBeforeUnmount(() => {
+  store.syncToBackendOnLogout(); 
+});
 
 function handleCardAccepted(cls: Class) {
   store.like(cls);

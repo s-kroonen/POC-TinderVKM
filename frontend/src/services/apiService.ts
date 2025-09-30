@@ -17,27 +17,22 @@ export async function getClasses(): Promise<Class[]> {
   return res.data;
 }
 
-export async function likeClassApi(id: string, token: string) {
-  await api.post(`/classes/${id}/like`, {}, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-}
-
-export async function skipClassApi(id: string, token: string) {
-  await api.post(`/classes/${id}/skip`, {}, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-}
-
 export async function mergePreferences(liked: string[], skipped: string[], token: string) {
   const res = await api.post(
-    `/classes/merge-preferences`,
+    `/classes/me/merge-preferences`,
     { liked, skipped },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return res.data;
 }
-
+export async function setPreferences(liked: string[], skipped: string[], token: string) {
+  const res = await api.post(
+    `/classes/me/set-preferences`,
+    { liked, skipped },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return res.data;
+}
 export async function getPreferences(token: string) {
   const res = await api.get(`/classes/me/preferences`, {
     headers: { Authorization: `Bearer ${token}` }

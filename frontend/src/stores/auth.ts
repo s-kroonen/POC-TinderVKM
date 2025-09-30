@@ -21,7 +21,6 @@ export const useAuthStore = defineStore("auth", () => {
     // merge cookies into backend preferences
     const classesStore = useClassesStore();
     await classesStore.fetchPreferences();
-    await classesStore.mergeCookiesToBackend();
   }
 
   async function register(email: string, password: string) {
@@ -31,11 +30,11 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   function logout() {
+    const classesStore = useClassesStore();
+    classesStore.syncToBackendOnLogout();
     token.value = null;
     userEmail.value = null;
     Cookies.remove("token");
-    const classesStore = useClassesStore();
-    classesStore.clearCookies();
   }
 
   return {

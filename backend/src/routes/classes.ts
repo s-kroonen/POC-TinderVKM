@@ -28,42 +28,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Like a class (authenticated)
-router.post("/:id/like", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user!.id;
-    const classId = req.params.id;
 
-    await User.findByIdAndUpdate(
-      userId,
-      { $addToSet: { liked: classId }, $pull: { skipped: classId } }, // add to liked, remove from skipped
-      { new: true }
-    );
-
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to like class" });
-  }
-});
-
-// Skip a class (authenticated)
-router.post("/:id/skip", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user!.id;
-    const classId = req.params.id;
-
-    await User.findByIdAndUpdate(
-      userId,
-      { $addToSet: { skipped: classId }, $pull: { liked: classId } }, // add to skipped, remove from liked
-      { new: true }
-    );
-
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to skip class" });
-  }
-});
-router.post("/merge-preferences", authMiddleware, async (req, res) => {
+router.post("/me/set-preferences", authMiddleware, async (req, res) => {
   try {
     const userId = req.user!.id;
     const { liked = [], skipped = [] } = req.body;
@@ -72,9 +38,9 @@ router.post("/merge-preferences", authMiddleware, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Merge arrays: keep uniqueness
-    user.liked = Array.from(new Set([...user.liked.map(String), ...liked]));
-    user.skipped = Array.from(new Set([...user.skipped.map(String), ...skipped]));
+    // Set arrays: overwrite existing
+    user.liked = liked;
+    user.skipped = skipped;
 
     await user.save();
 

@@ -5,9 +5,8 @@ import Cookies from "js-cookie";
 import {
   getClasses,
   mergePreferences,
+  setPreferences,
   type Class,
-  likeClassApi,
-  skipClassApi,
   getPreferences,
 } from "../services/apiService";
 import { useAuthStore } from "./auth";
@@ -31,7 +30,7 @@ export const useClassesStore = defineStore("classes", () => {
       // logged in → only backend
       await fetchPreferences();
     } else {
-      // not logged in → use cookies
+      // guest → use cookies
       loadFromCookies();
     }
 
@@ -63,39 +62,32 @@ export const useClassesStore = defineStore("classes", () => {
   }
 
   // ---------- Actions ----------
-  async function like(cls: Class) {
-    const token = getToken();
-    if (token) {
-      await likeClassApi(cls._id, token);
-    } else {
-      saveToCookies(cls._id, "liked");
-    }
+  function like(cls: Class) {
     liked.value.push(cls);
     remove(cls);
+    saveToCookies();
   }
 
-  async function skip(cls: Class) {
-    const token = getToken();
-    if (token) {
-      await skipClassApi(cls._id, token);
-    } else {
-      saveToCookies(cls._id, "skipped");
-    }
+  function skip(cls: Class) {
     skipped.value.push(cls);
     remove(cls);
+    saveToCookies();
   }
 
   function remove(cls: Class) {
     classes.value = classes.value.filter((c) => c._id !== cls._id);
   }
 
-  // ---------- Cookie helpers (guest mode only) ----------
-  function saveToCookies(classId: string, type: "liked" | "skipped") {
-    const existing = JSON.parse(Cookies.get(type) || "[]");
-    if (!existing.includes(classId)) {
-      existing.push(classId);
-      Cookies.set(type, JSON.stringify(existing));
-    }
+  // ---------- Cookies ----------
+  function saveToCookies() {
+    Cookies.set(
+      "liked",
+      JSON.stringify(liked.value.map((c) => c._id))
+    );
+    Cookies.set(
+      "skipped",
+      JSON.stringify(skipped.value.map((c) => c._id))
+    );
   }
 
   function loadFromCookies() {
@@ -104,30 +96,15 @@ export const useClassesStore = defineStore("classes", () => {
 
     liked.value = classes.value.filter((c) => likedIds.includes(c._id));
     skipped.value = classes.value.filter((c) => skippedIds.includes(c._id));
-
-    console.log(
-      "Loaded from cookies → liked:",
-      liked.value,
-      "skipped:",
-      skipped.value
-    );
   }
 
-  async function mergeCookiesToBackend() {
+  async function syncToBackendOnLogout() {
     const token = getToken();
     if (!token) return;
 
-    const likedIds = JSON.parse(Cookies.get("liked") || "[]");
-    const skippedIds = JSON.parse(Cookies.get("skipped") || "[]");
-
-    if (likedIds.length || skippedIds.length) {
-      await mergePreferences(likedIds, skippedIds, token);
-
-      Cookies.remove("liked");
-      Cookies.remove("skipped");
-
-      await fetchPreferences();
-    }
+    const likedIds = liked.value.map((c) => c._id);
+    const skippedIds = skipped.value.map((c) => c._id);
+    await setPreferences(likedIds, skippedIds, token);
   }
 
   function clearCookies() {
@@ -145,7 +122,7 @@ export const useClassesStore = defineStore("classes", () => {
     fetchPreferences,
     like,
     skip,
-    mergeCookiesToBackend,
+    syncToBackendOnLogout,
     clearCookies,
   };
 });
