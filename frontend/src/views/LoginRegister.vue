@@ -26,7 +26,7 @@ async function submit() {
 // Open Microsoft login in a popup
 function loginWithMicrosoft() {
   function handleMessage(event: MessageEvent) {
-    
+
     if (event.origin !== import.meta.env.VITE_API_URL) return;
 
     const { token, user } = event.data;
@@ -64,16 +64,15 @@ function loginWithMicrosoft() {
       <input v-model="email" type="email" placeholder="Email" class="w-full border p-2 rounded" required />
       <input v-model="password" type="password" placeholder="Password" class="w-full border p-2 rounded" required />
       <button @click="loginWithMicrosoft" class="mt-4 w-full bg-green-600 text-white py-2 rounded">
+        Login with Microsoft
+        <img src="../public/icons/microsoft.svg" alt="Microsoft" width="50" height="50" />
       </button>
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">
-        Login with Microsoft
         {{ mode === "login" ? "Login" : "Register" }}
       </button>
     </form>
 
-    <button @click="loginWithMicrosoft" class="btn btn-outline-dark d-flex align-items-center gap-2">
-      <img src="../public/icons/microsoft.svg" alt="Microsoft" width="50" height="50" />
-    </button>
+
 
     <p class="mt-4 text-sm text-center">
       <span v-if="mode === 'login'">
