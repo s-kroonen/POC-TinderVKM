@@ -13,13 +13,13 @@ export interface Class {
 }
 
 export async function getClasses(): Promise<Class[]> {
-  const res = await api.get<Class[]>("/classes");
+  const res = await api.get<Class[]>("/api/classes");
   return res.data;
 }
 
 export async function mergePreferences(liked: string[], skipped: string[], token: string) {
   const res = await api.post(
-    `/classes/me/merge-preferences`,
+    `/api/classes/me/merge-preferences`,
     { liked, skipped },
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -27,25 +27,25 @@ export async function mergePreferences(liked: string[], skipped: string[], token
 }
 export async function setPreferences(liked: string[], skipped: string[], token: string) {
   const res = await api.post(
-    `/classes/me/set-preferences`,
+    `/api/classes/me/set-preferences`,
     { liked, skipped },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return res.data;
 }
 export async function getPreferences(token: string) {
-  const res = await api.get(`/classes/me/preferences`, {
+  const res = await api.get(`/api/classes/me/preferences`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.data;
 }
 
 export async function loginApi(email: string, password: string) {
-  const res = await api.post("/auth/login", { email, password });
+  const res = await api.post("/api/auth/login", { email, password });
   return res.data;
 }
 
 export async function registerApi(email: string, password: string) {
-  const res = await api.post("/auth/register", { email, password });
+  const res = await api.post("/api/auth/register", { email, password });
   return res.data;
 }
