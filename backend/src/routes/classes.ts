@@ -35,9 +35,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+function getUserId(req: Express.Request): string {
+  if (!req.user) throw new Error("User not found on request");
+  return (req.user as { id: string }).id;
+}
+
 router.post("/me/set-preferences", authMiddleware, async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = getUserId(req);
     const { liked = [], skipped = [] } = req.body;
 
     logger.info("Set preferences request", { userId, likedCount: liked.length, skippedCount: skipped.length });
@@ -55,19 +60,19 @@ router.post("/me/set-preferences", authMiddleware, async (req, res) => {
     logger.info("Preferences updated", { userId, likedCount: liked.length, skippedCount: skipped.length });
     res.json({ liked: user.liked, skipped: user.skipped });
   } catch (err) {
-    logger.error("Failed to update preferences", { userId: req.user?.id, error: err instanceof Error ? err.message : err });
+    logger.error("Failed to update preferences", { userId: getUserId(req), error: err instanceof Error ? err.message : err });
     res.status(500).json({ error: "Failed to merge preferences" });
   }
 });
 
 router.get("/me/preferences", authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user!.id).populate("liked").populate("skipped");
+    const user = await User.findById(getUserId(req)).populate("liked").populate("skipped");
 
-    logger.info("Fetched user preferences", { userId: req.user!.id });
+    logger.info("Fetched user preferences", { userId: getUserId(req) });
     res.json({ liked: user?.liked || [], skipped: user?.skipped || [] });
   } catch (err) {
-    logger.error("Failed to fetch preferences", { userId: req.user?.id, error: err instanceof Error ? err.message : err });
+    logger.error("Failed to fetch preferences", { userId: getUserId(req), error: err instanceof Error ? err.message : err });
     res.status(500).json({ error: "Failed to fetch preferences" });
   }
 });

@@ -12,5 +12,6 @@
     "declaration": true,
     "sourceMap": true,
     "verbatimModuleSyntax": false
-  }
+  },
+  "include": ["src/**/*"]
 }

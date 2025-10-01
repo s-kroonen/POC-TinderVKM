@@ -3,6 +3,10 @@ services:
   mongo:
     image: mongo:4
     restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: mongo01
+      MONGO_INITDB_DATABASE: testdb
     volumes:
       - mongo_data:/data/db
     ports:

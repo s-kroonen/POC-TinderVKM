@@ -36,6 +36,12 @@ export const useAuthStore = defineStore("auth", () => {
     userEmail.value = null;
     Cookies.remove("token");
   }
+  // in auth store
+  function setToken(newToken: string, email?: string) {
+    token.value = newToken;
+    if (email) userEmail.value = email;
+    Cookies.set("token", newToken);
+  }
 
   return {
     token,
@@ -43,6 +49,7 @@ export const useAuthStore = defineStore("auth", () => {
     isLoggedIn,
     login,
     register,
-    logout
+    logout,
+    setToken
   };
 });

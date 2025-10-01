@@ -1,5 +1,7 @@
 // routes/auth.ts
 import { Router } from "express";
+import passport from "passport";
+import "../passport.js";
 import User from "../models/Users.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -46,5 +48,55 @@ router.post("/login", async (req, res) => {
   logger.info("Login successful", { userId: user._id, email });
   res.json({ token });
 });
+
+// Redirect user to Microsoft login
+router.get("/microsoft", passport.authenticate("microsoft"));
+
+// Callback after Microsoft login
+router.get(
+  "/microsoft/callback",
+  (req, res, next) => {
+    console.log("Microsoft callback query:", req.query);
+
+    passport.authenticate("microsoft", (err: any, user: any, info: any) => {
+      if (err) {
+        console.error("Microsoft OAuth Error:", err);
+        return res
+          .status(500)
+          .send(`<pre>OAuth Error: ${JSON.stringify(err, null, 2)}</pre>`);
+      }
+
+      if (!user) {
+        console.warn("Microsoft OAuth failed:", info);
+        return res
+          .status(401)
+          .send(`<pre>OAuth Failed: ${JSON.stringify(info, null, 2)}</pre>`);
+      }
+
+      const token = jwt.sign(
+        { id: user._id },
+        process.env.JWT_SECRET || "secret"
+      );
+      console.log("OAuth success, sending JWT to opener:", user.email, token);
+
+      const frontendOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
+      console.log("Using frontend origin:", frontendOrigin);
+      res.send(`
+        <script>
+          console.log("Posting token to opener:", '${token}');
+          window.opener.postMessage(
+            { token: '${token}', user: { email: '${user.email}' } },
+            '${frontendOrigin}'
+          );
+          window.close();
+        </script>
+      `);
+
+    })(req, res, next);
+  }
+);
+
+
+
 
 export default router;
