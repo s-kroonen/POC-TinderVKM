@@ -22,6 +22,9 @@ async function submit() {
     alert("Auth failed");
   }
 }
+function loginWithMicrosoft() {
+// TODO: Implement Microsoft OAuth flow
+}
 </script>
 
 <template>
@@ -31,27 +34,16 @@ async function submit() {
     </h1>
 
     <form @submit.prevent="submit" class="space-y-4">
-      <input
-        v-model="email"
-        type="email"
-        placeholder="Email"
-        class="w-full border p-2 rounded"
-        required
-      />
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Password"
-        class="w-full border p-2 rounded"
-        required
-      />
-      <button
-        type="submit"
-        class="w-full bg-blue-600 text-white py-2 rounded"
-      >
+      <input v-model="email" type="email" placeholder="Email" class="w-full border p-2 rounded" required />
+      <input v-model="password" type="password" placeholder="Password" class="w-full border p-2 rounded" required />
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">
         {{ mode === "login" ? "Login" : "Register" }}
       </button>
     </form>
+
+    <button @click="loginWithMicrosoft" class="btn btn-outline-dark d-flex align-items-center gap-2">
+      <img src="../public/icons/microsoft.svg" alt="Microsoft" width="50" height="50" />
+    </button>
 
     <p class="mt-4 text-sm text-center">
       <span v-if="mode === 'login'">
