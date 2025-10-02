@@ -1,14 +1,7 @@
-// src/stores/classes.ts
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import Cookies from "js-cookie";
-import {
-  getClasses,
-  mergePreferences,
-  setPreferences,
-  type Class,
-  getPreferences,
-} from "../services/apiService";
+import * as classService from "@/application/classService";
+import type { Class } from "@/domain/classService";
 import { useAuthStore } from "./auth";
 
 export const useClassesStore = defineStore("classes", () => {
@@ -17,99 +10,43 @@ export const useClassesStore = defineStore("classes", () => {
   const skipped = ref<Class[]>([]);
 
   function getToken(): string | null {
-    const auth = useAuthStore();
-    return auth.token;
+    return useAuthStore().token;
   }
 
   // ---------- Init ----------
   async function initClasses() {
-    await fetchClasses();
+    classes.value = await classService.loadClasses();
 
     const token = getToken();
-    if (token) {
-      // logged in → only backend
-      await fetchPreferences();
-    } else {
-      // guest → use cookies
-      loadFromCookies();
-    }
+    const prefs = await classService.loadPreferences(token || undefined);
 
-    filterClasses();
-  }
+    liked.value = prefs.liked;
+    skipped.value = prefs.skipped;
 
-  function filterClasses() {
-    const likedIds = liked.value.map((c) => c._id);
-    const skippedIds = skipped.value.map((c) => c._id);
-
-    classes.value = classes.value.filter(
-      (c) => !likedIds.includes(c._id) && !skippedIds.includes(c._id)
-    );
-  }
-
-  // ---------- Fetch ----------
-  async function fetchClasses() {
-    classes.value = await getClasses();
-  }
-
-  async function fetchPreferences() {
-    const token = getToken();
-    if (!token) return;
-
-    const prefs = await getPreferences(token);
-
-    liked.value = prefs.liked || [];
-    skipped.value = prefs.skipped || [];
+    classes.value = classService.filterClasses(classes.value, liked.value, skipped.value);
   }
 
   // ---------- Actions ----------
   function like(cls: Class) {
     liked.value.push(cls);
-    remove(cls);
-    saveToCookies();
+    classes.value = classService.likeClass(classes.value, cls);
+    classService.savePreferences(liked.value, skipped.value, getToken() || undefined);
   }
 
   function skip(cls: Class) {
     skipped.value.push(cls);
-    remove(cls);
-    saveToCookies();
-  }
-
-  function remove(cls: Class) {
-    classes.value = classes.value.filter((c) => c._id !== cls._id);
-  }
-
-  // ---------- Cookies ----------
-  function saveToCookies() {
-    Cookies.set(
-      "liked",
-      JSON.stringify(liked.value.map((c) => c._id))
-    );
-    Cookies.set(
-      "skipped",
-      JSON.stringify(skipped.value.map((c) => c._id))
-    );
-  }
-
-  function loadFromCookies() {
-    const likedIds = JSON.parse(Cookies.get("liked") || "[]");
-    const skippedIds = JSON.parse(Cookies.get("skipped") || "[]");
-
-    liked.value = classes.value.filter((c) => likedIds.includes(c._id));
-    skipped.value = classes.value.filter((c) => skippedIds.includes(c._id));
+    classes.value = classService.skipClass(classes.value, cls);
+    classService.savePreferences(liked.value, skipped.value, getToken() || undefined);
   }
 
   async function syncToBackendOnLogout() {
     const token = getToken();
     if (!token) return;
-
-    const likedIds = liked.value.map((c) => c._id);
-    const skippedIds = skipped.value.map((c) => c._id);
-    await setPreferences(likedIds, skippedIds, token);
+    await classService.savePreferences(liked.value, skipped.value, token);
   }
 
-  function clearCookies() {
-    Cookies.remove("liked");
-    Cookies.remove("skipped");
+  function clearPreferences() {
+    classService.clearPreferences();
     liked.value = [];
     skipped.value = [];
   }
@@ -119,10 +56,9 @@ export const useClassesStore = defineStore("classes", () => {
     liked,
     skipped,
     initClasses,
-    fetchPreferences,
     like,
     skip,
     syncToBackendOnLogout,
-    clearCookies,
+    clearPreferences,
   };
 });

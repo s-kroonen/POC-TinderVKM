@@ -1,31 +1,31 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import Cookies from "js-cookie";
-import { loginApi, registerApi } from "@/services/apiService";
+import * as authApi from "@/infrastructure/api/authApi";
 import { useClassesStore } from "./classes";
 
 export const useAuthStore = defineStore("auth", () => {
   const token = ref<string | null>(Cookies.get("token") || null);
-  const userEmail = ref<string | null>(null); // optional
+  const userEmail = ref<string | null>(null);
 
   function isLoggedIn() {
     return !!token.value;
   }
 
   async function login(email: string, password: string) {
-    const res = await loginApi(email, password);
+    const res = await authApi.login(email, password);
     token.value = res.token;
-    Cookies.set("token", res.token);
     userEmail.value = email;
+    Cookies.set("token", res.token);
 
-    // merge cookies into backend preferences
+    // fetch backend preferences
     const classesStore = useClassesStore();
-    await classesStore.fetchPreferences();
+    await classesStore.initClasses();
   }
 
   async function register(email: string, password: string) {
-    await registerApi(email, password);
-    // auto-login after register
+    await authApi.register(email, password);
+    // optional: auto-login
     // await login(email, password);
   }
 
@@ -36,7 +36,7 @@ export const useAuthStore = defineStore("auth", () => {
     userEmail.value = null;
     Cookies.remove("token");
   }
-  // in auth store
+
   function setToken(newToken: string, email?: string) {
     token.value = newToken;
     if (email) userEmail.value = email;
@@ -50,6 +50,6 @@ export const useAuthStore = defineStore("auth", () => {
     login,
     register,
     logout,
-    setToken
+    setToken,
   };
 });

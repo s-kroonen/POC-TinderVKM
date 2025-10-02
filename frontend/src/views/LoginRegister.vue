@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
+import { microsoftLoginUrl } from "@/infrastructure/api/authApi";
 
 const mode = ref<"login" | "register">("login");
 const email = ref("");
@@ -16,23 +17,17 @@ async function submit() {
     } else {
       await auth.register(email.value, password.value);
     }
-    router.push("/"); // redirect home
-  } catch (err: any) {
-    console.error(err);
+    router.push("/");
+  } catch {
     alert("Auth failed");
   }
 }
 
-// Open Microsoft login in a popup
 function loginWithMicrosoft() {
   function handleMessage(event: MessageEvent) {
-
-    console.log("Received message from:", event.origin, event.data);
-    console.log("Expected origin:", import.meta.env.VITE_API_URL);
     if (event.origin !== import.meta.env.VITE_API_URL) return;
 
     const { token, user } = event.data;
-    console.log("Received token:", token, "for user:", user);
     if (token) {
       auth.setToken(token, user.email);
       router.push("/");
@@ -40,42 +35,34 @@ function loginWithMicrosoft() {
     window.removeEventListener("message", handleMessage);
   }
 
-  // Attach listener first
   window.addEventListener("message", handleMessage);
 
   const width = 600;
   const height = 700;
   const left = window.screen.width / 2 - width / 2;
   const top = window.screen.height / 2 - height / 2;
-  console.log("Opening Microsoft login popup", import.meta.env.VITE_API_URL);
-  window.open(
-    `${import.meta.env.VITE_API_URL}/api/auth/microsoft`,
-    "Microsoft Login",
-    `width=${width},height=${height},top=${top},left=${left}`
-  );
-}
 
+  window.open(microsoftLoginUrl(), "Microsoft Login", `width=${width},height=${height},top=${top},left=${left}`);
+}
 </script>
 
 <template>
   <div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-bold mb-4">
-      {{ mode === "login" ? "Login" : "Register" }}
-    </h1>
+    <h1 class="text-2xl font-bold mb-4">{{ mode === "login" ? "Login" : "Register" }}</h1>
 
     <form @submit.prevent="submit" class="space-y-4">
       <input v-model="email" type="email" placeholder="Email" class="w-full border p-2 rounded" required />
       <input v-model="password" type="password" placeholder="Password" class="w-full border p-2 rounded" required />
-      <button @click="loginWithMicrosoft" class="mt-4 w-full bg-green-600 text-white py-2 rounded">
+
+      <button @click.prevent="loginWithMicrosoft" class="mt-4 w-full bg-green-600 text-white py-2 rounded">
         Login with Microsoft
         <img src="../public/icons/microsoft.svg" alt="Microsoft" width="50" height="50" />
       </button>
+
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">
         {{ mode === "login" ? "Login" : "Register" }}
       </button>
     </form>
-
-
 
     <p class="mt-4 text-sm text-center">
       <span v-if="mode === 'login'">
