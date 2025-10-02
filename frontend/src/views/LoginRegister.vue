@@ -27,9 +27,12 @@ async function submit() {
 function loginWithMicrosoft() {
   function handleMessage(event: MessageEvent) {
 
+    console.log("Received message from:", event.origin, event.data);
+    console.log("Expected origin:", import.meta.env.VITE_API_URL);
     if (event.origin !== import.meta.env.VITE_API_URL) return;
 
     const { token, user } = event.data;
+    console.log("Received token:", token, "for user:", user);
     if (token) {
       auth.setToken(token, user.email);
       router.push("/");

@@ -8,6 +8,7 @@ passport.use(
       clientID: process.env.MICROSOFT_CLIENT_ID!,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
       callbackURL: process.env.MICROSOFT_REDIRECT_URI!,
+      tenant: process.env.MICROSOFT_TENANT_ID,
       scope: ["user.read"],
     },
     async (

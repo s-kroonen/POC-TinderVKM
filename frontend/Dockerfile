@@ -8,12 +8,13 @@ ARG VITE_API_URL
 # Make it available for Vite
 ENV VITE_API_URL=$VITE_API_URL
 
+
 COPY package*.json ./
 RUN npm ci
 COPY . .
 
 # Build Vue + TS app with the build-time VITE_API_URL
-RUN echo "VITE_API_URL=$VITE_API_URL" && npm run build
+RUN npm run build
 
 # Production stage
 FROM nginx:stable-alpine
