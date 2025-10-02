@@ -2,6 +2,11 @@
 FROM node:20-alpine as build
 
 WORKDIR /app
+
+# Pass build-time environment variable
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 COPY package*.json ./
 RUN npm ci
 COPY . .
