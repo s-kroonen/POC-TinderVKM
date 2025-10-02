@@ -47,7 +47,7 @@ function loginWithMicrosoft() {
   const height = 700;
   const left = window.screen.width / 2 - width / 2;
   const top = window.screen.height / 2 - height / 2;
-
+  console.log("Opening Microsoft login popup", import.meta.env.VITE_API_URL);
   window.open(
     `${import.meta.env.VITE_API_URL}/api/auth/microsoft`,
     "Microsoft Login",

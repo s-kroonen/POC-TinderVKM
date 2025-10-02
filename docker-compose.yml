@@ -32,13 +32,16 @@ services:
       - "${BACKEND_PORT:-5000}:5000"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/}
     restart: always
     environment:
       PORT: ${FRONTEND_PORT:-3000}
       NODE_ENV: ${NODE_ENV:-production}
-    args:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/}
+
     ports:
       - "${FRONTEND_PORT:-3000}:80"
 

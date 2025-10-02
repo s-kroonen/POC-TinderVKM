@@ -14,7 +14,9 @@ RUN npm ci
 COPY . .
 
 # Build Vue + TS app with the build-time VITE_API_URL
-RUN npm run build
+RUN echo "VITE_API_URL=$VITE_API_URL" > .env.production \
+    && npm run build
+
 
 # Production stage
 FROM nginx:stable-alpine
