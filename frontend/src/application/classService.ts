@@ -1,11 +1,13 @@
 import * as classApi from "@/infrastructure/api/classApi";
 import * as cookieStore from "@/infrastructure/persistence/cookieStore";
-import { filterClasses, likeClass, skipClass, type Class } from "@/domain/classService";
+import type { Class } from "@/domain/classService";
 
+// --- Load all classes from backend ---
 export async function loadClasses(): Promise<Class[]> {
   return await classApi.fetchClasses();
 }
 
+// --- Load user preferences from backend or cookies ---
 export async function loadPreferences(token?: string): Promise<{ liked: Class[]; skipped: Class[] }> {
   if (token) {
     const prefs = await classApi.fetchPreferences(token);
@@ -23,6 +25,7 @@ export async function loadPreferences(token?: string): Promise<{ liked: Class[];
   };
 }
 
+// --- Save preferences (to backend or cookies) ---
 export function savePreferences(liked: Class[], skipped: Class[], token?: string) {
   if (token) {
     return classApi.setPreferences(
@@ -38,8 +41,7 @@ export function savePreferences(liked: Class[], skipped: Class[], token?: string
   return Promise.resolve();
 }
 
+// --- Clear all locally stored preferences ---
 export function clearPreferences() {
   cookieStore.clearPreferences();
 }
-
-export { filterClasses, likeClass, skipClass };

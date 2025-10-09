@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, PropType, watch } from "vue";
 import interact from "interactjs";
-import type { Class } from "@/services/apiService";
+import type { Class } from "@/domain/classService";
 
 const ACCEPT_CARD = "cardAccepted";
 const REJECT_CARD = "cardRejected";
