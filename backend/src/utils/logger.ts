@@ -1,16 +1,15 @@
 import winston from "winston";
 
+const { combine, timestamp, splat, json, errors } = winston.format as any;
 
-const logger = winston.createLogger({
-    level: process.env.LOG_LEVEL || "info",
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.errors({ stack: true }),
-        winston.format.splat(),
-        winston.format.json()
-    ),
-    transports: [new winston.transports.Console()],
+export const logger = winston.createLogger({
+  level: "info",
+  format: combine(
+    timestamp(),
+    typeof errors === "function" ? errors({ stack: true }) : winston.format.simple,
+    splat,
+    json
+  ),
+  transports: [new winston.transports.Console()],
 });
-
-
 export default logger;

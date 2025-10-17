@@ -1,8 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import config from "./config/index.js";
-import logger from "./utils/logger.js";
+import config from "./config/index";
+import logger from "./utils/logger";
 import authRoutes from "./presentation/routes/auth.routes.js";
 import classRoutes from "./presentation/routes/class.routes.js";
 import errorHandler from "./middleware/errorHandler.js";
@@ -31,3 +31,5 @@ export const createApp = async () => {
     app.use(errorHandler);
     return app;
 };
+const app = await createApp();
+export default app;
