@@ -18,8 +18,8 @@ async function submit() {
       await auth.register(email.value, password.value);
     }
     router.push("/");
-  } catch {
-    alert("Auth failed");
+  } catch (err: any) {
+    alert(err.message);
   }
 }
 

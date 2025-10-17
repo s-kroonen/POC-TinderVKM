@@ -1,7 +1,7 @@
 // src/controllers/UserController.ts
 import { Request, Response } from "express";
-import logger from "../../utils/logger.js";
-import { UserService } from "../../services/userService.js";
+import logger from "../../utils/logger";
+import { UserService } from "../../services/userService";
 
 export class UserController {
     constructor(private userService: UserService) { }
