@@ -113,3 +113,7 @@ This decision also influenced the backend: Express fit better due to its minimal
 > My research and framework testing guided the final implementation.  
 > Every choice — from Vue to Express and MongoDB — supports quick iteration, modular design, and modern development practices while remaining realistic for deployment and CI/CD integration.
 
+
+**Version:** 1.0  
+**Author:** Storm Kroonen  
+**Project:** Tinder-VKM

@@ -74,3 +74,8 @@ Frontend Container   Backend Container
 - Enhance security (CORS, secure cookies, token expiry)
 - Add monitoring and logging (Prometheus, Grafana, ELK stack)
 - Mobile UX refinement via Capacitor builds
+
+
+**Version:** 1.0  
+**Author:** Storm Kroonen  
+**Project:** Tinder-VKM
