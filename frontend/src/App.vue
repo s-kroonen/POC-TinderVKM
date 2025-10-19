@@ -15,7 +15,7 @@ import DesktopHeader from "@/Header.vue";
     </main>
 
     <footer class="bg-gray-200 text-center p-2 text-sm">
-      © 2025 LearnTinder
+      © 2025 VKM-Tinder (Storm Kroonen)
     </footer>
   </div>
 </template>
