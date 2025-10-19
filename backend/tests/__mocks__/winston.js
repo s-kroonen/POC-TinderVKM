@@ -8,8 +8,12 @@ export default {
   }),
   transports: { Console: jest.fn() },
   format: {
-    combine: jest.fn(),
-    timestamp: jest.fn(),
-    printf: jest.fn(),
+    combine: jest.fn((...args) => args), // optional: just return args
+    timestamp: jest.fn(() => () => {}), // returns a no-op transform
+    printf: jest.fn(() => () => {}),
+    splat: jest.fn(() => () => {}),
+    json: jest.fn(() => () => {}),
+    errors: jest.fn(() => () => {}),
+    simple: jest.fn(() => () => {}),
   },
 };
