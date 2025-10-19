@@ -5,4 +5,5 @@ beforeEach(() => {
   setActivePinia(createPinia());
   // mock window.open
   vi.stubGlobal("open", vi.fn());
+  vi.clearAllMocks();
 });

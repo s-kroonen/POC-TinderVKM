@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { ClassService } from "../../services/classService";
-import logger from "../../utils/logger";
+import { ClassService } from "../../services/classService.js";
+import logger from "../../utils/logger.js";
 
 export class ClassController {
     constructor(private classService: ClassService) { }

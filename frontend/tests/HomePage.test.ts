@@ -3,7 +3,7 @@ import HomePage from "@/views/Home.vue";
 import { useClassesStore } from "@/stores/classes";
 import { describe, it, expect, vi } from "vitest";
 
-// Mock window alert (if your component uses it)
+// Mock window alert
 vi.stubGlobal("alert", vi.fn());
 
 describe("HomePage.vue", () => {
