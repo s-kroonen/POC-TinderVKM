@@ -1,12 +1,14 @@
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import HomePage from "@/views/Home.vue";
 import { useClassesStore } from "@/stores/classes";
-import { describe, it, expect, vi } from "vitest";
+import * as classService from "@/application/classService";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import axios from "axios";
 
 // Mock window alert
 vi.stubGlobal("alert", vi.fn());
 
-// Simulated class data (from your MongoDB structure)
+// Simulated class data
 const simulatedClasses = [
   {
     _id: "68d65caa501309dbe3bc3972",
@@ -46,28 +48,40 @@ const simulatedClasses = [
   },
 ];
 
+beforeEach(() => {
+  // Mock axios for classes
+  vi.spyOn(classService, "loadClasses").mockResolvedValue(simulatedClasses);
+
+  // Mock preferences (cookies or token-based)
+  vi.spyOn(classService, "loadPreferences").mockResolvedValue({
+    liked: [],
+    skipped: [],
+  });
+
+  // Optional: prevent writing cookies during tests
+  vi.spyOn(classService, "savePreferences").mockImplementation(() => {});
+});
 describe("HomePage.vue", () => {
-  it("renders class list correctly", () => {
+  it("renders class list correctly", async () => {
     const store = useClassesStore();
-    store.classes = simulatedClasses;
     store.liked = [];
 
     const wrapper = mount(HomePage);
 
-    // Check if all classes are rendered
+    // Wait for initClasses() to finish
+    await flushPromises();
+
     const classItems = wrapper.findAll('[data-testid="class-card"]');
     expect(classItems.length).toBe(simulatedClasses.length);
-
-    // Check the first class name
     expect(classItems[0].text()).toContain(simulatedClasses[0].name);
   });
 
   it("filters classes by name", async () => {
     const store = useClassesStore();
-    store.classes = simulatedClasses;
     store.liked = [];
 
     const wrapper = mount(HomePage);
+    await flushPromises();
 
     await wrapper.find('input[placeholder="Filter by name"]').setValue("Psychologie");
 
@@ -77,14 +91,14 @@ describe("HomePage.vue", () => {
 
   it("toggles like/unlike correctly", async () => {
     const store = useClassesStore();
-    store.classes = simulatedClasses;
     store.liked = [];
     store.like = vi.fn((cls) => store.liked.push(cls));
     store.unlike = vi.fn((cls) => (store.liked = store.liked.filter(c => c._id !== cls._id)));
 
     const wrapper = mount(HomePage);
-    const cls = store.classes[0];
+    await flushPromises();
 
+    const cls = store.classes[0];
     wrapper.vm.toggleLike(cls);
     expect(store.like).toHaveBeenCalledWith(cls);
 
