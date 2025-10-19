@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { UserService } from "../../services/userService";
-import logger from "../../utils/logger";
-import { signToken } from "../../utils/jwt";
+import { UserService } from "../../services/userService.js";
+import logger from "../../utils/logger.js";
+import { signToken } from "../../utils/jwt.js";
 import validator from "validator";
 import passport from "passport";
 
