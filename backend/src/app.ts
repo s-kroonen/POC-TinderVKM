@@ -9,6 +9,12 @@ import errorHandler from "./middleware/errorHandler.js";
 import requestLogger from "./middleware/requestLogger.js";
 import passport from "./infra/passport.js";
 
+
+const allowedOrigins = [
+  config.frontendUrl,
+  "https://localhost",
+//   "http://localhost", // optional for dev
+];
 export const createApp = async () => {
     logger.info("Config variables", {
         port: config.port,
@@ -19,7 +25,13 @@ export const createApp = async () => {
     logger.info("Connected to mongo");
     const app = express();
     app.use(cors({
-        origin: config.frontendUrl,  // frontend origin
+        origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },  // frontend origin
         credentials: true,                 // if you use cookies/JWT in headers
     }));
     app.use(express.json());

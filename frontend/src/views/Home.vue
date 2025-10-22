@@ -10,6 +10,15 @@ const searchName = ref("");
 const searchLocation = ref("");
 const showOnlyLiked = ref(false);
 
+const mobileCards = computed(() => {
+  return store.classes.filter(
+    (cls) =>
+      !store.liked.some((c) => c._id === cls._id) &&
+      !store.skipped.some((c) => c._id === cls._id)
+  );
+});
+
+
 onMounted(() => store.initClasses());
 onBeforeUnmount(() => store.syncToBackendOnLogout());
 
@@ -46,7 +55,8 @@ const filteredClasses = computed(() => {
     <!-- MOBILE -->
     <div class="md:hidden p-4">
       <h1 class="text-xl font-bold mb-4">Swipe Classes</h1>
-      <GameCardsStack :cards="store.classes" @cardAccepted="store.like" @cardRejected="store.skip" />
+      <GameCardsStack :cards="mobileCards" @cardAccepted="store.like" @cardRejected="store.skip" />
+
     </div>
 
     <!-- DESKTOP -->
