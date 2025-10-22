@@ -27,13 +27,14 @@ export async function loadPreferences(token?: string): Promise<{ liked: Class[];
 
 // --- Save preferences (to backend or cookies) ---
 export function savePreferences(liked: Class[], skipped: Class[], token?: string) {
-  if (token) {
+  if (token != null) {
     return classApi.setPreferences(
       liked.map(c => c._id),
       skipped.map(c => c._id),
       token
     );
   }
+
 
   // Guest → save to cookies
   cookieStore.saveLiked(liked.map(c => c._id));
