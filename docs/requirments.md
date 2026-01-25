@@ -28,8 +28,8 @@ It is aligned with the **LU 1 TypeScript & NoSQL rubric**, including the areas:
 
 ## 2. Non-Functional Requirements
 
-| ID | Requirement | Description | Acceptance Criteria | Status |
-|----|--------------|--------------|---------------------|:------:|
+| ID       | Requirement | Description | Acceptance Criteria | Status |
+|----------|--------------|--------------|---------------------|:------:|
 | **NFR1** | **Architecture** | Use Onion Architecture to separate concerns. | - Layers: Domain, Application, Infrastructure, API.<br>- Dependencies flow inward only. | [ ] |
 | **NFR2** | **Technology Justification** | Node.js + TypeScript backend, Vue/React frontend, MongoDB persistence. | - All tech choices justified in research.<br>- Alternatives compared. | [ ] |
 | **NFR3** | **Deployment** | Application can be self-hosted and deployed to server. | - Automated CI/CD pipeline.<br>- MongoDB in container or Atlas.<br>- Rollback supported. | [ ] |
@@ -37,9 +37,8 @@ It is aligned with the **LU 1 TypeScript & NoSQL rubric**, including the areas:
 | **NFR5** | **Performance** | API responses within acceptable time. | - Avg response < 500 ms.<br>- Indexed MongoDB queries. | [ ] |
 | **NFR6** | **Scalability** | Backend supports concurrent users. | - Stateless API.<br>- Containerization for horizontal scaling. | [ ] |
 | **NFR7** | **Maintainability** | Code is modular, documented, and consistent. | - JSDoc docs.<br>- ESLint + Prettier.<br>- Folder structure per Onion Architecture. | [ ] |
-| **NFR8** | **Reliability & Rollback** | Rollback and recovery possible. | - Previous deployment restorable.<br>- Database backups retained. | [ ] |
-| **NFR9** | **User Experience (UX)** | Smooth, mobile-friendly UI. | - Swiping animation responsive.<br>- Key actions within ≤3 clicks. | [ ] |
-| **NFR10** | **Testing Integration** | Automated testing within CI/CD pipeline. | - Tests run on each push.<br>- Failed tests block deployment. | [ ] |
+| **NFR8** | **User Experience (UX)** | Smooth, mobile-friendly UI. | - Swiping animation responsive.<br>- Key actions within ≤3 clicks. | [ ] |
+| **NFR9** | **Testing Integration** | Automated testing within CI/CD pipeline. | - Tests run on each push.<br>- Failed tests block deployment. | [ ] |
 
 ---
 
@@ -68,6 +67,6 @@ These optional items aim for **maximum rubric scores** (“Excellent” column):
 ---
 
 **Version:** 1.0  
-**Author:** Storm Kroonen  
+**Author:** Storm Kroonen & ChatGPT
 **Project:** Tinder-VKM
 

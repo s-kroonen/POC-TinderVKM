@@ -1,119 +1,135 @@
-# Technological Research — TypeScript & NoSQL Proof of Concept
+# Technological Research — TypeScript & NoSQL Proof of Concept (Updated)
 
-This document contains the **complete research** behind the chosen technologies for this project.  
-The goal was to build a **Tinder-like app for students to choose and match with classes**, using a **TypeScript + Node.js backend** and a **Vue frontend**, connected to a **MongoDB NoSQL database**.  
-The research includes comparisons, reflections, and motivation for each technology.
+This document contains the **updated and extended research** behind the chosen technologies for this project.
+The focus of this update is a **multi‑criteria analysis** of the frontend and backend frameworks, comparing **Vue vs React** and **Express vs Fastify**, while preserving the original motivation and project context.
+
+The goal remains the same: building a **Tinder‑like application for students to match with classes**, using a **TypeScript + Node.js backend**, a **Vue-based frontend**, and a **MongoDB NoSQL database**.
 
 ---
 
 ## 1. Research Questions
 
-1. **Why choose Vue and Capacitor for the frontend?**  
-2. **Which backend framework fits best with TypeScript: Express, NestJS, or Fastify?**  
-3. **Why use MongoDB as a NoSQL database instead of SQL or alternatives like Firebase?**  
-4. **What architecture best fits this stack: Onion or Clean Architecture?**  
-5. **How do these choices affect scalability, maintainability, and developer experience?**
+1. Why choose **Vue** over **React** for the frontend?
+2. Why choose **Express** over **Fastify** for the backend?
+3. How do these choices score across multiple criteria (learning curve, maintainability, performance, scalability)?
+4. How well do these frameworks align with the project’s proof‑of‑concept goals?
 
 ---
 
-## 2. Backend Research — Node.js Ecosystem
+## 2. Frontend Framework Research — Vue vs React
 
-### 🔹 Framework Options
+### 🔹 Multi‑Criteria Analysis
 
-| Framework | Pros | Cons | Verdict |
-|------------|------|------|----------|
-| **Express.js** | - Lightweight and minimal.<br>- Large ecosystem and community.<br>- Excellent TypeScript support via `@types/express`.<br>- Easy to extend with middleware.<br>- Integrates well with MongoDB and Mongoose. | - Lacks strong structure out of the box.<br>- Manual configuration for validation, DI, and error handling. | **Chosen** — fits the POC goal and offers freedom to implement Onion Architecture manually. |
-| **NestJS** | - Opinionated structure based on Angular concepts.<br>- Built-in Dependency Injection and testing support.<br>- Great documentation and TypeScript-first. | - Steep learning curve.<br>- Verbose boilerplate for small projects.<br>- Overkill for simple CRUD and swiping logic. | Not chosen — too heavy for this lightweight project. |
-| **Fastify** | - Extremely fast and efficient.<br>- Built-in schema validation with AJV.<br>- Great plugin ecosystem. | - Smaller community than Express.<br>- Some packages require adaptation. | Considered — good for future scalability, but Express fits better for a learning-focused project. |
+| Criterion                 | Vue 3 | React | Explanation                                                                                                                                   |
+| ------------------------- | ----- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Syntax & Readability**  | ⭐⭐⭐⭐⭐ | ⭐⭐⭐   | Vue uses HTML‑like templates that feel familiar and intuitive. React’s JSX mixes logic and markup, which can feel verbose and harder to scan. |
+| **Learning Curve**        | ⭐⭐⭐⭐⭐ | ⭐⭐⭐   | Vue is easier to pick up, especially for developers with HTML/CSS background. React requires learning JSX patterns and hooks early on.        |
+| **Reactivity Model**      | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐  | Vue’s reactivity system (Composition API) is explicit and predictable. React relies on state + hooks, which can become complex.               |
+| **TypeScript Experience** | ⭐⭐⭐⭐  | ⭐⭐⭐⭐⭐ | React has slightly more mature TypeScript ecosystem, but Vue 3 offers first‑class TS support and excellent inference.                         |
+| **Boilerplate**           | ⭐⭐⭐⭐⭐ | ⭐⭐⭐   | Vue components are concise. React often requires more setup for state handling, effects, and context.                                         |
+| **Ecosystem & Libraries** | ⭐⭐⭐⭐  | ⭐⭐⭐⭐⭐ | React has a larger ecosystem, but Vue’s ecosystem is stable and well‑maintained.                                                              |
+| **Performance**           | ⭐⭐⭐⭐  | ⭐⭐⭐⭐  | Both are highly performant for this scale of application. Differences are negligible for a POC.                                               |
+| **Developer Experience**  | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐  | Vue’s single‑file components and tooling (Vite) enable fast iteration and clean structure.                                                    |
 
-#### **Final Decision: Express.js**
-> Chosen because it’s lightweight, TypeScript-friendly, and gives full control over architecture design (Onion pattern).  
-> It allows focusing on the logic, MongoDB integration, and testing, without fighting framework conventions.
+### 🔹 Verdict: **Vue 3 (Chosen)**
 
----
+Vue was selected because it aligns better with the project’s goals:
 
-## 3. Frontend Research — Vue + Capacitor
+* Rapid prototyping
+* Clear separation of template, logic, and styling
+* Minimal boilerplate
+* Easier reasoning about component behavior
 
-### 🔹 Framework Comparison
-
-| Framework | Pros | Cons | Verdict |
-|------------|------|------|----------|
-| **Vue 3** | - Lightweight and intuitive.<br>- Familiar HTML/JS syntax (easy transition from vanilla JS).<br>- Great reactivity system (Composition API).<br>- Fast build times with Vite.<br>- Excellent for rapid prototyping. | - Smaller ecosystem than React.<br>- Fewer ready-made TypeScript examples. | **Chosen** — balances simplicity and structure, perfect for a small yet interactive UI. |
-| **React** | - Massive community and library support.<br>- Strong TypeScript support.<br>- JSX allows more flexibility. | - Verbose syntax (JSX).<br>- Can become complex quickly.<br>- Requires more boilerplate for simple components. | Not chosen — heavier for this use case and less “HTML-like” to work with. |
-| **Angular** | - Full-featured with DI, routing, and forms built-in.<br>- Perfect for enterprise-scale projects. | - Steep learning curve.<br>- Heavy and opinionated.<br>- Slower to prototype. | Not chosen — overkill for a prototype-level project. |
-
-### 🔹 Native Wrapper — Capacitor
-| Technology | Pros | Cons | Verdict |
-|-------------|------|------|----------|
-| **Capacitor (by Ionic)** | - Turns Vue web app into a native mobile app.<br>- Simple integration with existing web code.<br>- Native API access (camera, storage, etc.).<br>- Maintained by Ionic team. | - Requires manual plugin setup for some native features.<br>- Limited offline caching by default. | **Chosen** — enables hybrid deployment with minimal changes. |
-| **Cordova** | - Mature ecosystem.<br>- Large plugin library. | - Outdated tech.<br>- Poor TypeScript and modern JS support.<br>- Slow build pipeline. | Not chosen — Capacitor is the modern successor. |
-
-#### **Final Decision: Vue + Capacitor**
-> Vue was chosen for its approachable syntax, fast learning curve, and flexibility.  
-> Capacitor makes it possible to extend the project into a mobile PWA or Android app without changing the core codebase.
-
-> **Personal Reflection:**  
-> I wanted to try a new frontend framework that wasn’t React or Angular.  
-> Vue felt natural because of its simple template system — similar to HTML — and its reactivity reminds me of Express’ straightforward style.  
-> It’s modern, lightweight, and lets me focus on functionality instead of framework complexity.
+> **Key Motivation:**
+> Vue’s template‑based, HTML‑like syntax makes dynamic UI development intuitive. It allows focusing on **application behavior** rather than framework mechanics, which is ideal for a proof‑of‑concept with complex user interaction (swiping, matching, favoriting).
 
 ---
 
-## 4. Database Research — MongoDB (NoSQL)
+## 3. Backend Framework Research — Express vs Fastify
 
-| Database | Pros | Cons | Verdict |
-|-----------|------|------|----------|
-| **MongoDB** | - Flexible document model (no strict schema).<br>- Perfect for dynamic class & user data.<br>- Easy integration with Mongoose ORM.<br>- Scalable horizontally with sharding.<br>- Cloud-hosted options (Atlas). | - Less strict than SQL (risk of inconsistent data).<br>- Joins require aggregation pipelines. | **Chosen** — best fit for the project’s fast-changing data model. |
-| **PostgreSQL** | - Strong relational integrity.<br>- Great for complex queries.<br>- Native JSON support. | - Requires migrations and rigid schema.<br>- Overhead for agile prototypes. | Not chosen — more structure than needed for flexible swiping app. |
-| **Firebase** | - Real-time updates.<br>- Easy hosting. | - Vendor lock-in.<br>- Limited query capabilities.<br>- Harder to integrate with CI/CD. | Not chosen — less control over backend logic. |
+### 🔹 Multi‑Criteria Analysis
 
-#### **Final Decision: MongoDB + Mongoose**
-> Offers dynamic schema handling and seamless TypeScript integration via Mongoose models.  
-> Ideal for storing flexible user and class data, matches, and swiping patterns.
+| Criterion                     | Express.js | Fastify | Explanation                                                                                                  |
+| ----------------------------- | ---------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| **Simplicity**                | ⭐⭐⭐⭐⭐      | ⭐⭐⭐⭐    | Express is minimal and straightforward. Fastify adds structure that can feel heavier for small projects.     |
+| **Learning Curve**            | ⭐⭐⭐⭐⭐      | ⭐⭐⭐⭐    | Express is easy to understand and widely taught. Fastify introduces schemas, plugins, and stricter patterns. |
+| **TypeScript Support**        | ⭐⭐⭐⭐       | ⭐⭐⭐⭐⭐   | Fastify is TypeScript‑first. Express relies on `@types`, but works reliably in practice.                     |
+| **Performance**               | ⭐⭐⭐        | ⭐⭐⭐⭐⭐   | Fastify outperforms Express under high load due to optimized HTTP handling.                                  |
+| **Flexibility**               | ⭐⭐⭐⭐⭐      | ⭐⭐⭐     | Express allows full freedom in architecture design. Fastify encourages specific patterns.                    |
+| **Ecosystem & Community**     | ⭐⭐⭐⭐⭐      | ⭐⭐⭐⭐    | Express has a massive ecosystem and long‑term stability.                                                     |
+| **Scalability**               | ⭐⭐⭐⭐       | ⭐⭐⭐⭐⭐   | Both can scale, but Fastify is more performance‑oriented for large APIs.                                     |
+| **Middleware & Integrations** | ⭐⭐⭐⭐⭐      | ⭐⭐⭐⭐    | Express integrates seamlessly with MongoDB, Mongoose, and common middleware.                                 |
+
+### 🔹 Verdict: **Express.js (Chosen)**
+
+Express was chosen because:
+
+* It matches prior development experience
+* It is lightweight and unopinionated
+* It allows manual implementation of **Onion Architecture**
+* It avoids unnecessary abstraction for a learning‑focused POC
+
+> **Key Motivation:**
+> Express provides exactly what is needed — no more, no less. Its simplicity accelerates development and keeps the focus on **business logic, data modeling, and testing**, rather than framework‑specific patterns.
+
+Fastify was considered due to performance advantages, but those benefits are not critical for a prototype‑scale application.
 
 ---
 
-## 5. Architecture — Onion Pattern
+## 4. Alignment Between Frontend & Backend Choices
 
-| Architecture | Pros | Cons | Verdict |
-|---------------|------|------|----------|
-| **Onion Architecture** | - Clear separation of concerns.<br>- Testable and maintainable.<br>- Domain at the center, infrastructure outside. | - Slightly more boilerplate. | **Chosen** — provides strong modularity for future extensions. |
-| **Clean Architecture** | - Similar benefits with more strict rules. | - More complex for small projects.<br>- Overhead in setup. | Considered but not needed. |
-| **MVC** | - Simple and traditional.<br>- Easy for quick projects. | - Tight coupling between layers. | Not chosen — not modular enough for scaling. |
+Vue and Express share a similar philosophy:
 
-#### **Final Decision: Onion Architecture**
-> Ensures a clean boundary between business logic, API, and data access layers.  
-> Perfect for implementing a **scalable, testable backend** that can grow over time.
+* Configure only what you need
+* Stay close to web standards
+* Avoid heavy abstractions
+
+This makes the stack cohesive and predictable, improving:
+
+* Debugging
+* Maintainability
+* Developer focus
 
 ---
 
-## 6. Summary of Choices
+## 5. Impact on Scalability, Maintainability & DX
 
-| Layer | Technology | Reason |
-|-------|-------------|--------|
-| **Frontend** | Vue 3 + TypeScript | Lightweight, HTML-like syntax, fast setup, ideal for prototypes. |
-| **Mobile Wrapper** | Capacitor | Enables native deployment with minimal code change. |
-| **Backend** | Express.js + TypeScript | Simple, powerful, flexible, and widely supported. |
-| **Database** | MongoDB + Mongoose | NoSQL flexibility for dynamic user/class data. |
-| **Architecture** | Onion | Promotes maintainability and testability. |
-| **CI/CD** | GitHub Actions | Supports automated testing, deployment, and rollback. |
+| Aspect                   | Impact                                                                                                   |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| **Scalability**          | Both Vue and Express scale well when combined with clean architecture and proper separation of concerns. |
+| **Maintainability**      | Onion Architecture + Vue components ensure modular code and testability.                                 |
+| **Developer Experience** | Fast iteration, clear structure, and minimal boilerplate improve productivity.                           |
+| **Future Growth**        | Express can later be migrated to Fastify or NestJS if performance or structure becomes critical.         |
+
+---
+
+## 6. Final Technology Summary
+
+| Layer            | Technology              | Reason                                                                              |
+| ---------------- | ----------------------- | ----------------------------------------------------------------------------------- |
+| **Frontend**     | Vue 3 + TypeScript      | HTML‑like syntax, strong reactivity, fast learning curve, ideal for interactive UI. |
+| **Backend**      | Express.js + TypeScript | Simple, flexible, extensible, aligns with learning and POC goals.                   |
+| **Database**     | MongoDB + Mongoose      | Flexible NoSQL schema, seamless Node.js integration.                                |
+| **Architecture** | Onion Architecture      | Strong separation of concerns, testable and scalable.                               |
+| **CI/CD**        | GitHub Actions          | Automated testing and deployment.                                                   |
 
 ---
 
 ## 7. Critical Reflection
 
-Throughout development, I compared multiple tools before finalizing this stack.  
-Although **NestJS** and **React** offer strong ecosystems, they add significant complexity for what is meant to be a **proof-of-concept**.  
-Vue and Express both follow a **lightweight, component-based** design philosophy — they complement each other and allowed me to focus on learning **TypeScript, testing, and MongoDB integration**.
+This updated research confirms that **Vue and Express** are not just convenient choices, but **well‑reasoned technical decisions** for this project.
 
-I chose Vue mainly out of curiosity and to challenge myself with a **new but accessible framework**.  
-This decision also influenced the backend: Express fit better due to its minimalism and alignment with Vue’s “configure only what you need” mindset.
+While **React** and **Fastify** excel in large‑scale or performance‑critical systems, they introduce complexity that does not align with a proof‑of‑concept focused on:
 
-> **Reflection:**  
-> My research and framework testing guided the final implementation.  
-> Every choice — from Vue to Express and MongoDB — supports quick iteration, modular design, and modern development practices while remaining realistic for deployment and CI/CD integration.
+* Learning
+* Rapid iteration
+* Clean architecture
 
+> **Final Reflection:**
+> Choosing Vue and Express allowed me to focus on building a solid, maintainable application without unnecessary abstraction. The stack supports growth, but never gets in the way of understanding the fundamentals.
 
-**Version:** 1.0  
-**Author:** Storm Kroonen  
-**Project:** Tinder-VKM
+---
+
+**Version:** 1.1
+**Author:** Storm Kroonen & ChatGPT
+**Project:** Tinder‑VKM

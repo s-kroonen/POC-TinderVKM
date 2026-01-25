@@ -77,5 +77,5 @@ Frontend Container   Backend Container
 
 
 **Version:** 1.0  
-**Author:** Storm Kroonen  
+**Author:** Storm Kroonen & ChatGPT
 **Project:** Tinder-VKM
