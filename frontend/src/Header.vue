@@ -35,6 +35,15 @@
               <li><a href="#">Vragen?</a></li>
             </ul>
           </div>
+          <!-- Create Class -->
+          <router-link
+              v-if="auth.isLoggedIn()"
+              to="/classes/create"
+              class="hover:underline"
+          >
+            + New Class
+          </router-link>
+
 
           <!-- Profile/Login -->
           <div class="ml-auto">

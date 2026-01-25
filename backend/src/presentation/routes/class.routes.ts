@@ -22,4 +22,9 @@ const classController = new ClassController(classService);
 router.get("/", classController.getAll.bind(classController));
 router.get("/:id", classController.getById.bind(classController));
 
+router.post("/", authMiddleware, classController.create.bind(classController));
+router.put("/:id", authMiddleware, classController.update.bind(classController));
+router.delete("/:id", authMiddleware, classController.remove.bind(classController));
+
+
 export default router;

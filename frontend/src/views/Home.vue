@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import { useClassesStore } from "@/stores/classes";
-import type { Class } from "@/domain/classService";
+import {ref, computed, onMounted, onBeforeUnmount} from "vue";
+import {useClassesStore} from "@/stores/classes";
+import type {Class} from "@/domain/classService";
 import GameCardsStack from "../components/GameCardsStack.vue";
 
 const store = useClassesStore();
@@ -10,11 +10,14 @@ const searchName = ref("");
 const searchLocation = ref("");
 const showOnlyLiked = ref(false);
 
+const currentPage = ref(1);
+const pageSize = 8;
+
 const mobileCards = computed(() => {
   return store.classes.filter(
-    (cls) =>
-      !store.liked.some((c) => c._id === cls._id) &&
-      !store.skipped.some((c) => c._id === cls._id)
+      (cls) =>
+          !store.liked.some((c) => c._id === cls._id) &&
+          !store.skipped.some((c) => c._id === cls._id)
   );
 });
 
@@ -36,18 +39,27 @@ function toggleLike(cls: Class) {
 const filteredClasses = computed(() => {
   return store.classes.filter((cls) => {
     const matchesName = cls.name
-      .toLowerCase()
-      .includes(searchName.value.toLowerCase());
+        .toLowerCase()
+        .includes(searchName.value.toLowerCase());
     const matchesLocation = cls.location
-      ? cls.location.toLowerCase().includes(searchLocation.value.toLowerCase())
-      : true;
+        ? cls.location.toLowerCase().includes(searchLocation.value.toLowerCase())
+        : true;
     const matchesLiked = !showOnlyLiked.value
-      ? true
-      : store.liked.some((c) => c._id === cls._id);
+        ? true
+        : store.liked.some((c) => c._id === cls._id);
 
     return matchesName && matchesLocation && matchesLiked;
   });
 });
+
+const paginatedClasses = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return filteredClasses.value.slice(start, start + pageSize);
+});
+
+const totalPages = computed(() =>
+    Math.ceil(filteredClasses.value.length / pageSize)
+);
 </script>
 
 <template>
@@ -55,7 +67,7 @@ const filteredClasses = computed(() => {
     <!-- MOBILE -->
     <div class="md:hidden p-4">
       <h1 class="text-xl font-bold mb-4">Swipe Classes</h1>
-      <GameCardsStack :cards="mobileCards" @cardAccepted="store.like" @cardRejected="store.skip" />
+      <GameCardsStack :cards="mobileCards" @cardAccepted="store.like" @cardRejected="store.skip"/>
 
     </div>
 
@@ -67,21 +79,25 @@ const filteredClasses = computed(() => {
 
       <!-- FILTERS -->
       <div class="flex gap-3 mb-6">
-        <input v-model="searchName" type="text" placeholder="Filter by name" class="border rounded-md p-2 flex-1" />
+        <input v-model="searchName" type="text" placeholder="Filter by name" class="border rounded-md p-2 flex-1"/>
         <input v-model="searchLocation" type="text" placeholder="Filter by location"
-          class="border rounded-md p-2 flex-1" />
+               class="border rounded-md p-2 flex-1"/>
         <label class="flex items-center gap-2">
-          <input type="checkbox" v-model="showOnlyLiked" />
+          <input type="checkbox" v-model="showOnlyLiked"/>
           <span>Show liked only</span>
         </label>
       </div>
 
       <!-- CLASSES GRID -->
       <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        <div v-for="cls in filteredClasses" :key="cls._id" data-testid="class-card"
-          class="bg-white p-4 rounded-lg shadow flex justify-between items-start">
+        <div v-for="cls in paginatedClasses" :key="cls._id" data-testid="class-card"
+             class="bg-white p-4 rounded-lg shadow flex justify-between items-start">
           <div>
-            <h2 class="font-semibold">{{ cls.name }}</h2>
+            <router-link :to="{ name: 'class-detail', params: { id: cls._id } }">
+              <h2 class="font-semibold hover:underline">
+                {{ cls.name }}
+              </h2>
+            </router-link>
             <p class="text-sm text-gray-600">{{ cls.description }}</p>
             <p v-if="cls.location" class="text-xs text-gray-500 mt-1">
               📍 {{ cls.location }}
@@ -90,8 +106,8 @@ const filteredClasses = computed(() => {
 
           <!-- LIKE TOGGLE -->
           <button @click="toggleLike(cls)"
-            class="rounded-md p-2.5 border border-transparent text-center text-sm transition-all shadow-sm focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
-            :class="store.liked.some((c) => c._id === cls._id)
+                  class="rounded-md p-2.5 border border-transparent text-center text-sm transition-all shadow-sm focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
+                  :class="store.liked.some((c) => c._id === cls._id)
               ? 'bg-red-600 text-white hover:bg-red-700'
               : 'bg-white text-red-600 border-red-300 hover:bg-red-100'" type="button">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
@@ -102,11 +118,31 @@ const filteredClasses = computed(() => {
                    2.322 5.437 5.25 0 3.925-2.438 7.111-4.739
                    9.256a25.175 25.175 0 0 1-4.244
                    3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752
-                   0 0 1-.704 0l-.003-.001Z" />
+                   0 0 1-.704 0l-.003-.001Z"/>
             </svg>
           </button>
         </div>
       </div>
+      <div class="flex justify-center mt-6 gap-2">
+        <button
+            :disabled="currentPage === 1"
+            @click="currentPage--"
+            class="px-3 py-1 border rounded"
+        >
+          Prev
+        </button>
+
+        <span>Page {{ currentPage }} / {{ totalPages }}</span>
+
+        <button
+            :disabled="currentPage === totalPages"
+            @click="currentPage++"
+            class="px-3 py-1 border rounded"
+        >
+          Next
+        </button>
+      </div>
+
     </div>
   </div>
 </template>
